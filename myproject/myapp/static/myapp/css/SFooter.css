@@ -1,0 +1,23 @@
+.hover-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 10px; /* Высота полоски */
+    background-color: transparent; /* Прозрачная полоска */
+    cursor: pointer;
+}
+
+.footer {
+    position: fixed;
+    bottom: -100%; /* Скрыть футер за пределами экрана */
+    left: 0;
+    width: 100%;
+    transition: bottom 0.5s;
+    opacity: 0.25; /* Полупрозрачный футер */
+}
+
+.footer.visible {
+    bottom: 0;
+    opacity: 1; /* Полностью видимый футер */
+}

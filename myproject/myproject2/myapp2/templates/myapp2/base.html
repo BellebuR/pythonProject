@@ -1,0 +1,39 @@
+<!-- templates/myapp/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Site{% endblock %}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar, footer { transition: opacity 0.5s; }
+        .navbar.hidden, footer.hidden { opacity: 0; }
+    </style>
+</head>
+<body>
+    {% include 'myapp2/navbar.html' %}
+    <div class="container mt-4">
+        {% block content %}{% endblock %}
+    </div>
+    {% include 'myapp2/footer.html' %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        let timer;
+        const navbar = document.querySelector('.navbar');
+        const footer = document.querySelector('footer');
+
+        document.addEventListener('mousemove', () => {
+            clearTimeout(timer);
+            navbar.classList.remove('hidden');
+            footer.classList.remove('hidden');
+            timer = setTimeout(() => {
+                navbar.classList.add('hidden');
+                footer.classList.add('hidden');
+            }, 2000); // 2 секунды
+        });
+    </script>
+</body>
+</html>

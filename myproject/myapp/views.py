@@ -3,11 +3,11 @@ from django.http import HttpResponse
 # Create your views here.
 
 def data_view(request):
-    return HttpResponse('<h1>This is the Data Page</h1>')
+    return render(request, template_name='myapp/data.html')
 
 def test_view(request):
-    return HttpResponse('<h1>This is the Test Page</h1>')
+    return render(request, template_name='myapp/test.html')
 
 
 def home_view(request):
-    return HttpResponse("Главная страница")
+    return render(request, template_name='myapp/home.html', context={'caption': 'FamalyVin'})

@@ -1,0 +1,14 @@
+<script>
+    const hoverBar = document.querySelector('.hover-bar');
+    const footer = document.querySelector('.footer');
+
+    hoverBar.addEventListener('mouseenter', () => {
+        footer.classList.add('visible');
+    });
+
+    hoverBar.addEventListener('mouseleave', () => {
+        setTimeout(() => {
+            footer.classList.remove('visible');
+        }, 750); // Задержка в 750 миллисекунд перед скрытием футера
+    });
+</script>
