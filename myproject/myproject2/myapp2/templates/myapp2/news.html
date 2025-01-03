@@ -3,4 +3,15 @@
 {% block title %}Новости{% endblock %}
 {% block content %}
 <h1>Последние новости</h1>
+
+{% for news_post in news %}
+  <div>
+    <h2>{{ news_post.title }}</h2>
+    <p><strong>Автор:</strong> {{ news_post.author.username }}</p>
+    <p><strong>Краткое описание:</strong> {{ news_post.short_description }}</p>
+    <p><strong>Текст:</strong> {{ news_post.text }}</p>
+    <p><strong>Дата публикации:</strong> {{ news_post.pub_date }}</p>
+  </div>
+{% endfor %}
+
 {% endblock %}
