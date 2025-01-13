@@ -1,0 +1,19 @@
+   <!DOCTYPE html>
+   <html lang="en">
+   <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+       <title>Home</title>
+   </head>
+   <body>
+       <div class="container mt-5">
+           <h1>Welcome to Movie Project</h1>
+           <p>Use the links below to navigate:</p>
+           <div class="list-group">
+               <a href="{% url 'add_film' %}" class="list-group-item list-group-item-action">Add a New Film</a>
+               <a href="{% url 'film_list' %}" class="list-group-item list-group-item-action">View Film List</a>
+           </div>
+       </div>
+   </body>
+   </html>

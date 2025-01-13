@@ -1,0 +1,24 @@
+   <!DOCTYPE html>
+   <html lang="en">
+   <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+       <title>Film List</title>
+   </head>
+   <body>
+       <div class="container mt-5">
+           <h2>Film List</h2>
+           <ul class="list-group">
+               {% for film in films %}
+                   <li class="list-group-item">
+                       <h5>{{ film.title }}</h5>
+                       <p>{{ film.description }}</p>
+                       <p><strong>Review:</strong> {{ film.review }}</p>
+                   </li>
+               {% endfor %}
+           </ul>
+           <a href="{% url 'add_film' %}" class="btn btn-success mt-3">Add New Film</a>
+       </div>
+   </body>
+   </html>
