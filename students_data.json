@@ -1,0 +1,52 @@
+[
+    {
+        "name": "Макс",
+        "age": 15,
+        "grade": "10б"
+    },
+    {
+        "name": "Ренат",
+        "age": 13,
+        "grade": "8а"
+    },
+    {
+        "name": "Ренат",
+        "age": 13,
+        "grade": "/show"
+    },
+    {
+        "name": "Ренат",
+        "age": 13,
+        "grade": "/show"
+    },
+    {
+        "name": "Ренат",
+        "age": 13,
+        "grade": "import asyncio\nfrom aiogram import Bot, Dispatcher, F\nfrom aiogram.filters import CommandStart, Command\nfrom aiogram.types import Message\nfrom aiogram.fsm.context import FSMContext\nfrom aiogram.fsm.state import StatesGroup, State\nfrom aiogram.fsm.storage.memory import MemoryStorage\nfrom config import TOKEN\nimport sqlite3\n\n# Инициализация бота и диспетчера с использованием MemoryStorage\nbot = Bot(token=TOKEN)\ndp = Dispatcher(storage=MemoryStorage())\n\n# Класс состояний\nclass Form(StatesGroup):\n    name = State()\n    age = State()\n    grade = State()\n\n# Функция для записи данных в базу данных\ndef insert_student(name, age, grade):\n    conn = sqlite3.connect('school_data.db')\n    cursor = conn.cursor()\n    cursor.execute(\"INSERT INTO students (name, age, grade) VALUES (?, ?, ?)\", (name, age, grade))\n    conn.commit()\n    conn.close()\n\n# Функция для получения всех данных из базы данных\ndef get_all_students():\n    conn = sqlite3.connect('school_data.db')\n    cursor = conn.cursor()\n    cursor.execute(\"SELECT name, age, grade FROM students\")\n    rows = cursor.fetchall()\n    conn.close()\n    return rows\n\n# Обработчик команды /start\n@dp.message(CommandStart())\nasync def send_welcome(message: Message, state: FSMContext):\n    await message.answer(\"Привет! Введите ваше имя:\")\n    await state.set_state(Form.name)\n\n# Обработчик для получения имени\n@dp.message(Form.name)\nasync def process_name(message: Message, state: FSMContext):\n    await state.update_data(name=message.text)\n    await message.answer(\"Введите ваш возраст:\")\n    await state.set_state(Form.age)\n\n# Обработчик для получения возраста\n@dp.message(Form.age)\nasync def process_age(message: Message,state: FSMContext):\n    if message.text.isdigit():\n        await state.update_data(age=int(message.text))\n        await message.answer(\"Введите ваш класс:\")\n        await state.set_state(Form.grade)\n    else:\n        await message.answer(\"Пожалуйста, введите корректный возраст.\")\n\n# Обработчик для получения класса\n@dp.message(Form.grade)\nasync def process_grade(message: Message, state: FSMContext):\n    await state.update_data(grade=message.text)\n    data = await state.get_data()\n    insert_student(data['name'], data['age'], data['grade'])\n    await message.answer(\"Ваши данные сохранены!\")\n\n# Обработчик команды /show для отображения данных\n@dp.message(Command(commands=['show']))\nasync def show_students(message: Message):\n    students = get_all_students()\n    if students:\n        response = \"Список студентов:\\n\"\n        for student in students:\n            response += f\"Имя: {student[0]}, Возраст: {student[1]}, Класс: {student[2]}\\n\"\n    else:\n        response = \"В базе данных пока нет студентов.\"\n    await message.answer(response)\n\n# Главная функция для запуска бота\nasync def main():\n    try:\n        await dp.start_polling(bot)\n    finally:\n        await bot.session.close()\n\nif name == 'main':\n    asyncio.run(main())\n\nПишет после команды /show что ваши данные сохранены, а не показывает данные"
+    },
+    {
+        "name": "Ганс",
+        "age": 12,
+        "grade": "7в"
+    },
+    {
+        "name": "Ганс",
+        "age": 12,
+        "grade": "/show"
+    },
+    {
+        "name": "Ганс",
+        "age": 5,
+        "grade": "0"
+    },
+    {
+        "name": "Ганс",
+        "age": 5,
+        "grade": "/show"
+    },
+    {
+        "name": "Марк",
+        "age": 20,
+        "grade": "15а"
+    }
+]
