@@ -5,6 +5,7 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
+
 def home(request):
     products = Product.objects.all()
     return render(request, 'shop/home.html', {'products': products})
