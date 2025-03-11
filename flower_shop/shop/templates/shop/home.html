@@ -5,10 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flower Shop</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Стили для корзины */
+        .cart {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 5%;
+            background: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+        .cart.open {
+            width: 30%;
+        }
+        .cart-header {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .cart-content {
+            display: none;
+            padding: 10px;
+        }
+        .cart.open .cart-content {
+            display: block;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .registration-btn {
+            margin-bottom: 20px; /* Отступ снизу */
+        }
+    </style>
 </head>
 <body>
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-info">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <div class="container mt-5">
-        <h1>Our Flowers</h1>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="registration-btn">
+                {% if user.is_authenticated %}
+                    <span class="mr-3">Добро пожаловать, {{ user.username }}!</span>
+                    <a href="{% url 'logout' %}" class="btn btn-danger">Выход</a>
+                {% else %}
+                    <a href="{% url 'register' %}" class="btn btn-secondary">Регистрация</a><a href="{% url 'login' %}" class="btn btn-secondary">Авторизация</a>
+                {% endif %}
+            </div>
+        </div>
+        <h1>Наши цветы</h1>
         <div class="row">
             {% for product in products %}
             <div class="col-md-4">
@@ -17,12 +75,125 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="card-text">${{ product.price }}</p>
-                        <a href="{% url 'product_detail' product.pk %}" class="btn btn-primary">View Details</a>
+                        <button class="btn btn-primary add-to-cart" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">Добавить в корзину</button>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
+    <!-- Корзина -->
+    <div class="cart" id="cart">
+        <div class="cart-header" onclick="toggleCart()">Корзина</div>
+        <div class="cart-content">
+            <div id="cart-items"></div>
+            <div><strong>Итого: <span id="total-price">0</span>$</strong></div>
+            <button class="btn btn-success" onclick="showOrderForm()">Оформить заказ</button>
+        </div>
+    </div>
+
+    <div id="order-form" style="display:none; position:fixed; top:20%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; z-index:1001;">
+        <h3>Оформление заказа</h3>
+        <form id="checkout-form">
+            <div class="form-group">
+                <label for="customer-name">Имя покупателя</label>
+                <input type="text" class="form-control" id="customer-name" required>
+            </div>
+            <div class="form-group">
+                <label for="customer-email">Email</label>
+                <input type="email" class="form-control" id="customer-email" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Подтвердить заказ</button>
+            <button type="button" class="btn btn-secondary" onclick="hideOrderForm()">Отмена</button>
+        </form>
+    </div>
+
+    <script>
+        let cart = [];
+        let totalPrice = 0;
+
+        function toggleCart() {
+            const cartElement = document.getElementById('cart');
+            cartElement.classList.toggle('open');
+        }
+
+        function showOrderForm() {
+            document.getElementById('order-form').style.display = 'block';
+        }
+
+        function hideOrderForm() {
+            document.getElementById('order-form').style.display = 'none';
+        }
+
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                const price = parseFloat(this.getAttribute('data-price'));
+
+                // Добавляем товар в корзину
+                cart.push({ id, name, price });
+                totalPrice += price;
+                updateCart();
+            });
+        });
+
+        function removeFromCart(index) {
+            totalPrice -= cart[index].price;
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            cartItemsContainer.innerHTML = '';
+            cart.forEach((item, index) => {
+                cartItemsContainer.innerHTML += `
+                    <div class="cart-item">
+                        ${item.name} - $${item.price.toFixed(2)}
+                        <button class="btn btn-danger btn-sm" onclick="removeFromCart(${index})">Удалить</button>
+                    </div>`;
+            });
+            document.getElementById('total-price').innerText = totalPrice.toFixed(2);
+        }
+
+        document.getElementById('checkout-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const customerName = document.getElementById('customer-name').value;
+            const customerEmail = document.getElementById('customer-email').value;
+
+            const orderDetails = {
+                customerName: customerName,
+                customerEmail: customerEmail,
+                items: cart,
+                totalPrice: totalPrice
+            };
+
+            // Сохраняем заказ в файл JSON
+            fetch('/save-order/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}' // Не забудьте добавить CSRF токен для Django
+                },
+                body: JSON.stringify(orderDetails)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Заказ успешно оформлен!');
+                    cart = [];
+                    totalPrice = 0;
+                    updateCart();
+                    hideOrderForm();
+                } else {
+                    alert('Произошла ошибка при оформлении заказа.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+<!-- Шаблон деталей продукта -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,8 +11,21 @@
     <div class="container mt-5">
         <h1>{{ product.name }}</h1>
         <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
-        <p>Price: ${{ product.price }}</p>
-        <a href="#" class="btn btn-success">Add to Cart</a>
+        <p>Цена: ${{ product.price }}</p>
+        <button class="btn btn-primary add-to-cart" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">Добавить в корзину</button>
     </div>
+
+    <script>
+        // Код для обработки добавления в корзину       document.querySelector('.add-to-cart').addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            const price = parseFloat(this.getAttribute('data-price'));
+
+            // Добавляем товар в корзину
+            cart.push({ id, name, price });
+            totalPrice += price;
+            updateCart(); // Обновляем корзину
+        });
+    </script>
 </body>
 </html>
