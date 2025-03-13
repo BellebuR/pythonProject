@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+import requests
 
 
 def home(request):
@@ -57,4 +58,32 @@ def save_order(request):
 
         return JsonResponse({'status': 'success'})
 
+    return JsonResponse({'status': 'error'}, status=400)
+
+
+def send_telegram_message(order_details):
+    bot_token = '7190369938:AAHs0ERVZHJiGvgdeUskeFpf0BPOh-7uIEo'
+    chat_id = '1534460779'
+    message = f"Новый заказ:\nИмя: {order_details['customerName']}\nEmail: {order_details['customerEmail']}\nТовары: {', '.join(item['name'] for item in order_details['items'])}\nОбщая стоимость: ${order_details['totalPrice']:.2f}"
+
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    data = {
+        'chat_id': chat_id,
+        'text': message,
+        'parse_mode': 'HTML'
+    }
+
+    response = requests.post(url, data=data)
+    return response.ok
+
+
+def save_order(request):
+    if request.method == 'POST':
+        order_details = json.loads(request.body)
+        # Здесь сохраните заказ в файл или БД
+
+        # Отправка уведомления в Telegram
+        send_telegram_message(order_details)
+
+        return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'}, status=400)
